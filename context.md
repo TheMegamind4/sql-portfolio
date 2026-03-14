@@ -81,37 +81,50 @@ Strategy: get callbacks first, close the skill gap fast before interviews arrive
 - GitHub account: TheMegamind4
 - sql-portfolio repo created (public) and cloned to Documents/sql-portfolio
 - LearningDB created and tested in SSMS — basic CREATE/INSERT/SELECT verified working
+- Megamind database fully designed — schema scripts in repo
 
 ### Phase 2 — SQL Depth ← CURRENTLY HERE (Weeks 1–4)
 
+**Core principle for all learning in this phase:**
+Every SQL concept is learned by writing real queries against the Megamind database.
+No generic dummy exercises. Every query has a real purpose tied to a real module.
+CTEs against ConversationLog and JobApplications.
+Window Functions against WorkoutSession and ProgressionLog.
+Indexes and optimization against actual Megamind tables with generated data.
+This way learning and building happen simultaneously.
+
 **Week 1 — Complex Queries (in progress)**
-- Multi-table JOINs across 3+ tables — started today
-- CTEs (Common Table Expressions)
-- Window Functions — ROW_NUMBER, RANK, LAG, LEAD
+- Multi-table JOINs across 3+ tables — started Day 1
+- CTEs (Common Table Expressions) — applied to Megamind Learning and Job modules
+- Window Functions — ROW_NUMBER, RANK, LAG, LEAD — applied to Megamind Workout and Job modules
 - Subqueries vs CTEs — when to use which
-- Practice database: LearningDB with Employees, Departments, Locations tables
+- LearningDB has Employees, Departments, Locations tables populated and working
 
 **Week 2 — Indexes and Execution Plans**
 - Clustered vs non-clustered vs covering indexes
 - Reading execution plans in SSMS
 - Table scan vs index seek — what they mean and why they matter
+- Applied directly to Megamind tables
 - This is the gap that separates junior from mid-level SQL Developer
 
 **Week 3 — Query Optimization and Performance Tuning**
 - SARGability — why some WHERE conditions cannot use indexes
 - Set-based vs row-based operations
-- Generating real measurable performance improvement using project data
-- 50,000 to 100,000 rows generated via Python to make timing differences visible
+- 50,000 to 100,000 rows generated via Python into Megamind tables
+- Real before/after timing measured — this becomes the portfolio proof and the resume metric
 
 **Week 4 — Stored Procedures, Views, Functions Done Properly**
 - Error handling with TRY/CATCH
 - Transaction management inside procedures
 - Scalar vs table-valued functions — why scalar functions destroy performance
 - When to use views vs CTEs
+- All built as real objects inside Megamind — not throwaway examples
 
 ### Phase 3 — Projects (Weeks 5–8)
-Build the Megamind Personal Database modules.
-Everything built goes into sql-portfolio GitHub repo.
+Megamind modules built out fully.
+By this point the schema exists, the learning queries exist, the optimization proof exists.
+Phase 3 is completing the Python integration layer on top.
+Everything goes into sql-portfolio GitHub repo.
 
 ### Phase 4 — SSIS + Light DE Exposure (Weeks 9–11)
 - SSIS basics — packages, control flow, data flow, simple ETL
@@ -239,10 +252,13 @@ Jarvis becomes the AI and voice layer on top of the Python UI eventually.
 ## Daily Learning Format
 
 - Each day = one focused chat session with Claude
-- Start every session by pasting this context.md
+- Start every session by pasting the full text of context.md
+- If the session involves schema or SQL script work, also upload the relevant SQL files
+- All SQL concepts are learned by applying them directly to the Megamind database and its modules
+- No generic practice — every query has a real purpose tied to a real module
 - Learning is interview-focused — every concept covered the way an interviewer tests it
 - Session summary stored in ConversationLog table in Megamind database
-- All code and scripts committed to sql-portfolio GitHub repo
+- All code and scripts committed to sql-portfolio GitHub repo at end of each session
 
 ---
 
@@ -255,3 +271,4 @@ Jarvis becomes the AI and voice layer on top of the Python UI eventually.
 - Collaborative building — we design and build together, not just lecture and learn
 - Known weakness: overambitious and hyperactive at the start of new things — call it out if needed
 - Known trait: perfectionist — use it as a strength but flag when it becomes a blocker
+- If asked where we left off — the answer is always in this file, do not ask back, read it and confirm
