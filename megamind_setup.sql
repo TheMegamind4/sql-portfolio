@@ -1,6 +1,15 @@
 -- =============================================
 -- MEGAMIND DATABASE SETUP SCRIPT
--- Run this in SSMS to create the full database
+-- Run this in SSMS first before any other script
+-- =============================================
+-- Creates:
+--   Learning System  — ConversationLog, LearningTopics
+--   Job Search       — JobApplications, InterviewLog
+--   Finance          — Transactions, FinanceGoals
+--
+-- NOTE: Health/Workout tables are NOT here.
+-- The full workout system lives in megamind_workout_schema_v2.sql
+-- Run that script second after this one.
 -- =============================================
 
 CREATE DATABASE Megamind;
@@ -10,13 +19,16 @@ USE Megamind;
 GO
 
 -- =============================================
--- PHASE 1: LEARNING SYSTEM
+-- LEARNING SYSTEM
+-- Tracks every Claude session and concept learned
+-- Most important module — feeds AI context system
 -- =============================================
 
 CREATE TABLE ConversationLog (
     SessionID       INT IDENTITY(1,1) PRIMARY KEY,
     SessionDate     DATE NOT NULL,
     SessionNumber   INT NOT NULL,
+    SessionTitle    NVARCHAR(200),
     TopicsCovered   NVARCHAR(500),
     Summary         NVARCHAR(2000),
     KeyConcepts     NVARCHAR(1000),
@@ -37,38 +49,36 @@ CREATE TABLE LearningTopics (
 );
 
 -- =============================================
--- PHASE 2: HEALTH SYSTEM
+-- JOB SEARCH SYSTEM
+-- Built early — actively job hunting right now
 -- =============================================
 
-CREATE TABLE WorkoutLog (
-    WorkoutID       INT IDENTITY(1,1) PRIMARY KEY,
-    WorkoutDate     DATE NOT NULL,
-    WorkoutType     NVARCHAR(100),
-    DurationMinutes INT,
+CREATE TABLE JobApplications (
+    ApplicationID   INT IDENTITY(1,1) PRIMARY KEY,
+    AppliedDate     DATE NOT NULL,
+    CompanyName     NVARCHAR(200) NOT NULL,
+    RoleTitle       NVARCHAR(200) NOT NULL,
+    Platform        NVARCHAR(100),   -- 'LinkedIn', 'Naukri' etc
+    Status          NVARCHAR(50) DEFAULT 'Applied',
+    -- Status values: Applied, Shortlisted, Interview, Rejected, Offer
+    SalaryExpected  DECIMAL(10,2),
+    JobURL          NVARCHAR(500),
     Notes           NVARCHAR(500),
     CreatedAt       DATETIME DEFAULT GETDATE()
 );
 
-CREATE TABLE ExerciseLog (
-    ExerciseID      INT IDENTITY(1,1) PRIMARY KEY,
-    WorkoutID       INT FOREIGN KEY REFERENCES WorkoutLog(WorkoutID),
-    ExerciseName    NVARCHAR(200) NOT NULL,
-    Sets            INT,
-    Reps            INT,
-    WeightKg        DECIMAL(5,2),
-    Notes           NVARCHAR(300)
-);
-
-CREATE TABLE BodyMetrics (
-    MetricID        INT IDENTITY(1,1) PRIMARY KEY,
-    RecordDate      DATE NOT NULL,
-    WeightKg        DECIMAL(5,2),
-    Notes           NVARCHAR(300),
+CREATE TABLE InterviewLog (
+    InterviewID     INT IDENTITY(1,1) PRIMARY KEY,
+    ApplicationID   INT FOREIGN KEY REFERENCES JobApplications(ApplicationID),
+    InterviewDate   DATE,
+    Round           NVARCHAR(100),   -- 'HR Screening', 'Technical Round 1' etc
+    Outcome         NVARCHAR(50),    -- 'Passed', 'Failed', 'Pending'
+    Notes           NVARCHAR(500),
     CreatedAt       DATETIME DEFAULT GETDATE()
 );
 
 -- =============================================
--- PHASE 3: FINANCE SYSTEM
+-- FINANCE SYSTEM
 -- =============================================
 
 CREATE TABLE Transactions (
@@ -76,7 +86,7 @@ CREATE TABLE Transactions (
     TransactionDate DATE NOT NULL,
     Amount          DECIMAL(10,2) NOT NULL,
     Type            NVARCHAR(10) CHECK (Type IN ('Income','Expense')),
-    Category        NVARCHAR(100),
+    Category        NVARCHAR(100),   -- 'Food', 'Transport', 'Salary' etc
     Description     NVARCHAR(300),
     CreatedAt       DATETIME DEFAULT GETDATE()
 );
@@ -92,37 +102,14 @@ CREATE TABLE FinanceGoals (
 );
 
 -- =============================================
--- PHASE 4: JOB SEARCH SYSTEM
--- =============================================
-
-CREATE TABLE JobApplications (
-    ApplicationID   INT IDENTITY(1,1) PRIMARY KEY,
-    AppliedDate     DATE NOT NULL,
-    CompanyName     NVARCHAR(200) NOT NULL,
-    RoleTitle       NVARCHAR(200) NOT NULL,
-    Platform        NVARCHAR(100),
-    Status          NVARCHAR(50) DEFAULT 'Applied',
-    SalaryExpected  DECIMAL(10,2),
-    JobURL          NVARCHAR(500),
-    Notes           NVARCHAR(500),
-    CreatedAt       DATETIME DEFAULT GETDATE()
-);
-
-CREATE TABLE InterviewLog (
-    InterviewID     INT IDENTITY(1,1) PRIMARY KEY,
-    ApplicationID   INT FOREIGN KEY REFERENCES JobApplications(ApplicationID),
-    InterviewDate   DATE,
-    Round           NVARCHAR(100),
-    Outcome         NVARCHAR(50),
-    Notes           NVARCHAR(500),
-    CreatedAt       DATETIME DEFAULT GETDATE()
-);
-
--- =============================================
 -- VERIFY: Show all created tables
+-- Expected: 6 tables
+-- ConversationLog, LearningTopics,
+-- JobApplications, InterviewLog,
+-- Transactions, FinanceGoals
 -- =============================================
 
-SELECT TABLE_NAME 
-FROM INFORMATION_SCHEMA.TABLES 
+SELECT TABLE_NAME
+FROM INFORMATION_SCHEMA.TABLES
 WHERE TABLE_TYPE = 'BASE TABLE'
 ORDER BY TABLE_NAME;

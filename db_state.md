@@ -1,7 +1,7 @@
 # Megamind — Database State
 > Update this file every time the database structure or data changes.
 > Paste this into Claude at the start of any session involving database work.
-> Last updated: Session 001 — 14 March 2026
+> Last updated: Session 002 — 14 March 2026
 
 ---
 
@@ -14,98 +14,126 @@
 ---
 
 ## LearningDB (Practice Database)
-Status: EXISTS on local machine — used for initial learning only
+Status: EXISTS — used for initial learning only, not connected to Megamind
 
 | Table | Status | Data |
 |-------|--------|------|
-| Employees | Created | 10 rows inserted |
-| Departments | Created | 5 rows inserted |
-| Locations | Created | 4 rows inserted |
+| Employees | Created | 10 rows |
+| Departments | Created | 5 rows |
+| Locations | Created | 4 rows |
 
-Queries run against LearningDB so far:
+Queries run against LearningDB:
 - Basic CREATE TABLE, INSERT, SELECT verified working
 - 3-table JOIN across Employees, Departments, Locations — working
 
 ---
 
 ## Megamind (Main Database)
-Status: **DOES NOT EXIST YET on local machine**
-Scripts are written and in the repo but have NOT been run in SSMS.
-
-### Scripts ready to run
-| Script | Status | Run Order |
-|--------|--------|-----------|
-| megamind_setup.sql | Ready — not run yet | 1st |
-| megamind_workout_schema_v2.sql | Ready — not run yet | 2nd |
+Status: **LIVE on local machine — created Session 002**
+Total tables: **22**
 
 ---
 
-## What megamind_setup.sql will create
+## Tables from megamind_setup.sql
 
-### Learning Module
-| Table | Columns | Notes |
-|-------|---------|-------|
-| ConversationLog | SessionID, SessionDate, SessionNumber, TopicsCovered, Summary, KeyConcepts, NextSession, DifficultyLevel, CreatedAt | Tracks every Claude learning session |
-| LearningTopics | TopicID, SessionID(FK), TopicName, Category, NeedsRevision, InterviewReady, Notes, CreatedAt | Individual concepts per session |
+### ConversationLog
+| Column | Type | Notes |
+|--------|------|-------|
+| SessionID | INT IDENTITY PK | Auto increment |
+| SessionDate | DATE NOT NULL | Date of the actual session |
+| SessionNumber | INT NOT NULL | Sequential session number |
+| SessionTitle | NVARCHAR(200) | Short title — added via ALTER TABLE Session 002 |
+| TopicsCovered | NVARCHAR(500) | Comma separated topics |
+| Summary | NVARCHAR(2000) | Full session summary |
+| KeyConcepts | NVARCHAR(1000) | Concepts covered |
+| NextSession | NVARCHAR(500) | What to do next |
+| DifficultyLevel | TINYINT | 1-5 check constraint |
+| CreatedAt | DATETIME | Default GETDATE() |
 
-### Job Search Module
-| Table | Columns | Notes |
-|-------|---------|-------|
-| JobApplications | ApplicationID, AppliedDate, CompanyName, RoleTitle, Platform, Status, SalaryExpected, JobURL, Notes, CreatedAt | Status values: Applied, Shortlisted, Interview, Rejected, Offer |
-| InterviewLog | InterviewID, ApplicationID(FK), InterviewDate, Round, Outcome, Notes, CreatedAt | Tracks each interview round |
+**Current data: 2 rows**
+- Session 001 — 2026-03-13 — Environment Setup and Megamind Architecture
+- Session 002 — 2026-03-14 — Context System Design and Database Execution
 
-### Finance Module
-| Table | Columns | Notes |
-|-------|---------|-------|
-| Transactions | TransactionID, TransactionDate, Amount, Type, Category, Description, CreatedAt | Type: Income or Expense |
-| FinanceGoals | GoalID, GoalName, TargetAmount, CurrentAmount, Deadline, Status, CreatedAt | Default status: Active |
+### LearningTopics
+| Column | Type | Notes |
+|--------|------|-------|
+| TopicID | INT IDENTITY PK | Auto increment |
+| SessionID | INT FK | References ConversationLog |
+| TopicName | NVARCHAR(200) NOT NULL | Concept name |
+| Category | NVARCHAR(100) | SQL, Python, Tools, Domain etc |
+| NeedsRevision | BIT | 0 = no, 1 = yes |
+| InterviewReady | BIT | 0 = no, 1 = yes |
+| Notes | NVARCHAR(1000) | Context notes |
+| CreatedAt | DATETIME | Default GETDATE() |
 
-### Placeholder Health Tables (simple — real workout system is in v2 script)
-| Table | Columns | Notes |
-|-------|---------|-------|
-| WorkoutLog | WorkoutID, WorkoutDate, WorkoutType, DurationMinutes, Notes, CreatedAt | Basic placeholder only |
-| ExerciseLog | ExerciseID, WorkoutID(FK), ExerciseName, Sets, Reps, WeightKg, Notes | Basic placeholder only |
-| BodyMetrics | MetricID, RecordDate, WeightKg, Notes, CreatedAt | Weight tracking |
+**Current data: 11 rows**
+- Session 1: SQL Server Installation, SSMS Setup, Git/GitHub Setup, Database Schema Design (NeedsRevision=1), Normalization Concepts (NeedsRevision=1), Periodized Training Science, Fatigue Tracking System Design (NeedsRevision=1)
+- Session 2: ALTER TABLE (InterviewReady=1), DROP and RECREATE TABLE (InterviewReady=1), Foreign Key Dependencies (InterviewReady=1), Context Management System
+
+### JobApplications
+**Current data: 0 rows** — table exists, ready for entries
+
+| Column | Type | Notes |
+|--------|------|-------|
+| ApplicationID | INT IDENTITY PK | |
+| AppliedDate | DATE NOT NULL | |
+| CompanyName | NVARCHAR(200) NOT NULL | |
+| RoleTitle | NVARCHAR(200) NOT NULL | |
+| Platform | NVARCHAR(100) | LinkedIn, Naukri etc |
+| Status | NVARCHAR(50) | Default: Applied. Values: Applied, Shortlisted, Interview, Rejected, Offer |
+| SalaryExpected | DECIMAL(10,2) | |
+| JobURL | NVARCHAR(500) | |
+| Notes | NVARCHAR(500) | |
+| CreatedAt | DATETIME | Default GETDATE() |
+
+### InterviewLog
+**Current data: 0 rows** — table exists, ready for entries
+
+### Transactions
+**Current data: 0 rows** — table exists, ready for entries
+
+### FinanceGoals
+**Current data: 0 rows** — table exists, ready for entries
 
 ---
 
-## What megamind_workout_schema_v2.sql will create
+## Tables from megamind_workout_schema_v2.sql
 
-### Reference Tables (definitions — populated with data by the script)
-| Table | Status after script runs | Row count |
-|-------|--------------------------|-----------|
-| BodyRegion | Populated | 26 rows |
-| SetProtocol | Populated | 6 rows |
-| ExerciseIntent | Populated | 6 rows |
-| MeasurementType | Populated | 2 rows |
-| ProgressionRule | Populated | 7 rows |
+### Reference Tables — All Populated
+| Table | Rows | Notes |
+|-------|------|-------|
+| BodyRegion | 26 | All body regions with recovery hours |
+| SetProtocol | 6 | Normal, Cluster, Isometric, Eccentric, Drop, Mobility |
+| ExerciseIntent | 6 | Explosive, Eccentric, Isometric, Strength, Activation, Mobility |
+| MeasurementType | 2 | Reps, Time |
+| ProgressionRule | 7 | All progression types including Speed Must Maintain |
 
 ### Program Structure Tables
-| Table | Status after script runs | Row count |
-|-------|--------------------------|-----------|
-| Quarter | Populated | 4 rows (Q1 Tendon, Q2 Neural, Q3 placeholder, Q4 placeholder) |
-| CycleDay | Populated | 17 rows (8 for Q1 + 9 for Q2) |
-| Exercise | Populated | 60+ rows — all exercises from Q1 and Q2 programs |
-| ExerciseBodyRegion | **EMPTY — needs manual population** | 0 rows |
-| DayExercise | **EMPTY — needs manual population** | 0 rows |
+| Table | Rows | Notes |
+|-------|------|-------|
+| Quarter | 4 | Q1 Tendon, Q2 Neural, Q3 placeholder, Q4 placeholder |
+| CycleDay | 17 | 8 for Q1 + 9 for Q2 |
+| Exercise | 60+ | All exercises from Q1 and Q2 programs pre-mapped |
+| ExerciseBodyRegion | **0 — NEEDS POPULATION** | Maps exercises to body regions |
+| DayExercise | **0 — NEEDS POPULATION** | Full prescription per exercise per cycle day |
 
-### Logging Tables (all empty until workouts are logged)
-| Table | Status after script runs |
-|-------|--------------------------|
-| WorkoutSession | Empty |
-| ExerciseEntry | Empty |
-| SetEntry | Empty |
-| ClusterRepEntry | Empty |
+### Logging Tables — All Empty
+| Table | Rows | Notes |
+|-------|------|-------|
+| WorkoutSession | 0 | Ready for use once ExerciseBodyRegion and DayExercise populated |
+| ExerciseEntry | 0 | |
+| SetEntry | 0 | |
+| ClusterRepEntry | 0 | |
 
-### Intelligence Tables (all empty until data exists to calculate from)
-| Table | Status after script runs |
-|-------|--------------------------|
-| FatigueLog | Empty |
-| ProgressionLog | Empty |
+### Intelligence Tables — All Empty
+| Table | Rows | Notes |
+|-------|------|-------|
+| FatigueLog | 0 | Calculated once workout data exists |
+| ProgressionLog | 0 | Populated as progressions happen |
 
 ---
 
-## Quarter Structure
+## Quarter Structure — Verified Correct
 
 ### Q1 — Tendon Conditioning (8 day cycle)
 | Day | Name | Type |
@@ -135,8 +163,7 @@ Scripts are written and in the repo but have NOT been run in SSMS.
 ---
 
 ## Pending Database Work
-- [ ] Run megamind_setup.sql in SSMS
-- [ ] Run megamind_workout_schema_v2.sql in SSMS
 - [ ] Populate ExerciseBodyRegion — map every exercise to its body regions
-- [ ] Populate DayExercise — full prescription for every exercise in Q1 and Q2 cycle days
-- [ ] Insert first ConversationLog row for Session 001
+- [ ] Populate DayExercise — full prescription for every exercise in Q1 and Q2
+- [ ] Start inserting JobApplications — actively job hunting
+- [ ] Insert Session 003 into ConversationLog after next session
