@@ -224,6 +224,7 @@ Only increase weight if speed is unchanged
 |------|---------|
 | megamind_setup.sql | Creates Megamind DB + Learning, Finance, Job tables — run this first |
 | megamind_workout_schema_v2.sql | Complete workout module — Q1=Tendon, Q2=Neural — run this second |
+| workout_population.sql | Populates ExerciseBodyRegion and DayExercise for Q1 and Q2 — run this third |
 | context.md | This file — paste at start of every Claude session |
 | master_schema_plan.md | Full database blueprint and design decisions |
 | session_log.md | Running log of every session — append after each session |
@@ -232,6 +233,7 @@ Only increase weight if speed is unchanged
 ### Run Order in SSMS (if setting up fresh)
 1. Run megamind_setup.sql first
 2. Run megamind_workout_schema_v2.sql second
+3. Run workout_population.sql third
 
 ---
 

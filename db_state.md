@@ -1,7 +1,7 @@
 # Megamind — Database State
 > Update this file every time the database structure or data changes.
 > Paste this into Claude at the start of any session involving database work.
-> Last updated: Session 002 — 14 March 2026
+> Last updated: Session 003 — 15 March 2026
 
 ---
 
@@ -50,9 +50,10 @@ Total tables: **22**
 | DifficultyLevel | TINYINT | 1-5 check constraint |
 | CreatedAt | DATETIME | Default GETDATE() |
 
-**Current data: 2 rows**
+**Current data: 3 rows**
 - Session 001 — 2026-03-13 — Environment Setup and Megamind Architecture
 - Session 002 — 2026-03-14 — Context System Design and Database Execution
+- Session 003 — 2026-03-15 — Workout Database Population and First Real Queries
 
 ### LearningTopics
 | Column | Type | Notes |
@@ -66,9 +67,10 @@ Total tables: **22**
 | Notes | NVARCHAR(1000) | Context notes |
 | CreatedAt | DATETIME | Default GETDATE() |
 
-**Current data: 11 rows**
-- Session 1: SQL Server Installation, SSMS Setup, Git/GitHub Setup, Database Schema Design (NeedsRevision=1), Normalization Concepts (NeedsRevision=1), Periodized Training Science, Fatigue Tracking System Design (NeedsRevision=1)
-- Session 2: ALTER TABLE (InterviewReady=1), DROP and RECREATE TABLE (InterviewReady=1), Foreign Key Dependencies (InterviewReady=1), Context Management System
+**Current data: 23 rows**
+- Session 1: 7 topics — SQL Server Installation, SSMS Setup, Git/GitHub Setup, Database Schema Design (NeedsRevision=1), Normalization Concepts (NeedsRevision=1), Periodized Training Science (NeedsRevision=1), Fatigue Tracking System Design (NeedsRevision=1)
+- Session 2: 4 topics — ALTER TABLE (NeedsRevision=1), DROP and RECREATE TABLE (NeedsRevision=1), Foreign Key Dependencies (NeedsRevision=1), Context Management System
+- Session 3: 12 topics — Fact vs Dimension vs Bridge Tables, INNER JOIN vs LEFT JOIN, Multi-table INNER JOIN, STRING_AGG, GROUP BY with Aggregation, WHERE vs HAVING, Duplicate Aggregation Root Cause, Stored Procedure Creation, usp Naming Convention, CREATE vs ALTER PROCEDURE, ExerciseBodyRegion Population, DayExercise Population — all NeedsRevision=1, InterviewReady=0
 
 ### JobApplications
 **Current data: 0 rows** — table exists, ready for entries
@@ -114,13 +116,13 @@ Total tables: **22**
 | Quarter | 4 | Q1 Tendon, Q2 Neural, Q3 placeholder, Q4 placeholder |
 | CycleDay | 17 | 8 for Q1 + 9 for Q2 |
 | Exercise | 60+ | All exercises from Q1 and Q2 programs pre-mapped |
-| ExerciseBodyRegion | **0 — NEEDS POPULATION** | Maps exercises to body regions |
-| DayExercise | **0 — NEEDS POPULATION** | Full prescription per exercise per cycle day |
+| ExerciseBodyRegion | 264 | All 65 exercises mapped to body regions. IsPrimary flag set. Populated Session 003. |
+| DayExercise | 86 | Full prescription for all training days in Q1 and Q2. Populated Session 003. |
 
 ### Logging Tables — All Empty
 | Table | Rows | Notes |
 |-------|------|-------|
-| WorkoutSession | 0 | Ready for use once ExerciseBodyRegion and DayExercise populated |
+| WorkoutSession | 0 | Ready for use — ExerciseBodyRegion and DayExercise now populated |
 | ExerciseEntry | 0 | |
 | SetEntry | 0 | |
 | ClusterRepEntry | 0 | |
@@ -162,8 +164,15 @@ Total tables: **22**
 
 ---
 
+## Stored Procedures
+| Procedure | Purpose |
+|-----------|---------|
+| usp_GetWorkoutPrescription | Takes @CycleDayID INT. Returns full workout prescription for that day — exercise order, name, purpose, sets, reps/time, load, rest, grip, cluster details, notes. |
+
+---
+
 ## Pending Database Work
-- [ ] Populate ExerciseBodyRegion — map every exercise to its body regions
-- [ ] Populate DayExercise — full prescription for every exercise in Q1 and Q2
+- [ ] Log first real workout session — WorkoutSession, ExerciseEntry, SetEntry
 - [ ] Start inserting JobApplications — actively job hunting
-- [ ] Insert Session 003 into ConversationLog after next session
+- [ ] Build stored procedure for logging a workout session
+- [ ] CTEs and Window Functions — Week 1 SQL learning not started yet

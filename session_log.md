@@ -94,3 +94,50 @@ Steady and methodical. Less hyperactive than Session 001 — good sign.
 The context system being built today is the foundation for everything. Worth the time investment.
 
 ---
+
+## Session 003 — 15 March 2026
+
+**Phase:** Phase 2 Week 1 — Database Population and First Real Queries
+**SessionTitle:** Workout Database Population and First Real Queries
+
+### What Was Done
+- Deep dive into Megamind workout table architecture — clarified every table's purpose at column level
+- Established correct classification — Fact vs Dimension vs Bridge/Config tables
+- Generated and ran workout_population.sql — populated ExerciseBodyRegion (264 rows) and DayExercise (86 rows) for Q1 and Q2
+- Full workout logging chain is now unblocked — WorkoutSession, ExerciseEntry, SetEntry can all be used
+- Wrote first real 5-table INNER JOIN against Megamind — exercises and body regions for Q1 Day 1
+- Learned STRING_AGG — collapsed multi-row region results into one row per exercise
+- Debugged duplicate aggregation — root cause was join fan-out before GROUP BY
+- Learned WHERE vs HAVING distinction — fixed clause ordering from experience not memorisation
+- Created usp_GetWorkoutPrescription stored procedure — takes @CycleDayID, returns full prescription
+- Learned CREATE vs ALTER PROCEDURE distinction — IF OBJECT_ID DROP then CREATE pattern
+- Logged Session 003 into ConversationLog and LearningTopics
+
+### Decisions Made
+- InterviewReady flag stays 0 until a topic has been visited multiple times and can be reproduced from memory
+- NeedsRevision = 1 for all SQL concepts from today — one exposure is not enough
+- workout_population.sql added as third script in run order
+- Priority for next sessions — log real workout data, then CTEs and Window Functions
+
+### What Was NOT Done
+- CTEs and Window Functions — still not started, pushed again
+- First real workout not yet logged — database is ready, waiting for actual session tomorrow
+- Stored procedure for logging a workout session not yet built
+
+### What Changed Mid-Session
+- ExerciseBodyRegion went from 0 to 264 rows
+- DayExercise went from 0 to 86 rows
+- usp_GetWorkoutPrescription created under Programmability → Stored Procedures
+
+### Next Session Must Start With
+1. Git push — context.md, session_log.md, db_state.md, workout_population.sql
+2. Run usp_GetWorkoutPrescription 1 — get Q1 Day 1 prescription
+3. After workout — log into WorkoutSession, ExerciseEntry, SetEntry
+4. Then begin CTEs
+
+### Mood / State
+Solid session. Good balance of setup work and real learning.
+Abhiram wrote queries himself and debugged independently — that's the right direction.
+Watch for: CTEs keep getting pushed. Make sure next session actually starts with SQL learning, not more setup work.
+
+---
