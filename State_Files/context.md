@@ -32,7 +32,7 @@ I am a software engineer who lost interest in web development after 3 years. I w
 - Schema design and normalization (real experience)
 - Query optimization and performance tuning — **NOT done intentionally. Need to learn properly.**
 - Indexing strategies — **understand the concept, need hands-on depth**
-- Window functions, CTEs — **know they exist, need to build fluency**
+- Window functions, CTEs — **know they exist, building fluency now**
 
 ### Python DE projects (done approximately 1 year ago, now rusty)
 - Air Quality Data Pipeline — REST API → Python → CSV/Parquet output
@@ -81,7 +81,7 @@ Strategy: get callbacks first, close the skill gap fast before interviews arrive
 - GitHub account: TheMegamind4
 - sql-portfolio repo created (public) and cloned to Documents/sql-portfolio
 - LearningDB created and tested in SSMS — basic CREATE/INSERT/SELECT verified working
-- Megamind database fully designed and live — 22 tables
+- Megamind database fully designed and live — 30 tables
 
 ### Phase 2 — SQL Depth ← CURRENTLY HERE (Weeks 1–4)
 
@@ -95,11 +95,12 @@ Indexes and optimization against actual Megamind tables with generated data.
 Learning and building happen simultaneously.
 
 **Week 1 — Complex Queries (in progress)**
-- Multi-table JOINs across 3+ tables — started Day 1
-- CTEs (Common Table Expressions) — applied to Megamind Learning and Job modules
-- Window Functions — ROW_NUMBER, RANK, LAG, LEAD — applied to Megamind Workout and Job modules
-- Subqueries vs CTEs — when to use which
-- LearningDB has Employees, Departments, Locations tables populated and working
+- Multi-table JOINs across 3+ tables ✅ Done Session 003
+- CTEs (Common Table Expressions) ✅ Done Session 004
+- Window Functions — ROW_NUMBER, RANK, LAG, LEAD ✅ Done Session 004
+- SUM OVER running totals — next session
+- Recursive CTEs — next session
+- Subqueries vs CTEs — when to use which ✅ Done Session 004
 
 **Week 2 — Indexes and Execution Plans**
 - Clustered vs non-clustered vs covering indexes
@@ -220,20 +221,30 @@ Only increase weight if speed is unchanged
 
 ## SQL Files in the Repo
 
-| File | Purpose |
-|------|---------|
-| megamind_setup.sql | Creates Megamind DB + Learning, Finance, Job tables — run this first |
-| megamind_workout_schema_v2.sql | Complete workout module — Q1=Tendon, Q2=Neural — run this second |
-| workout_population.sql | Populates ExerciseBodyRegion and DayExercise for Q1 and Q2 — run this third |
-| context.md | This file — paste at start of every Claude session |
-| master_schema_plan.md | Full database blueprint and design decisions |
-| session_log.md | Running log of every session — append after each session |
-| db_state.md | Current database state snapshot — overwrite after each session |
+| File | Purpose | Run Order |
+|------|---------|-----------|
+| megamind_master_schema.sql | Creates Megamind DB + ConversationLog, Job, Finance tables | 1st |
+| megamind_learning_schema.sql | All learning system tables — drops LearningTopics, creates new schema | 2nd |
+| megamind_workout_schema.sql | All workout tables — definitions only, no data | 3rd |
+| megamind_workout_population.sql | All workout dimension and program data | 4th |
+| megamind_learning_population.sql | All learning dimension data — 3 topics, 16 subtopics, 121 concepts | 5th |
+| session_XXX_log.sql | One per session — ConversationLog + SessionConcept + ConceptProgress | After each session |
+| context.md | This file — paste at start of every Claude session | — |
+| master_schema_plan.md | Full database blueprint and design decisions | — |
+| session_log.md | Running log of every session — append after each session | — |
+| db_state.md | Current database state snapshot — overwrite after each session | — |
 
 ### Run Order in SSMS (if setting up fresh)
-1. Run megamind_setup.sql first
-2. Run megamind_workout_schema_v2.sql second
-3. Run workout_population.sql third
+1. megamind_master_schema.sql
+2. megamind_learning_schema.sql
+3. megamind_workout_schema.sql
+4. megamind_workout_population.sql
+5. megamind_learning_population.sql
+
+### Old files — DELETE from repo
+- megamind_setup.sql — replaced by megamind_master_schema.sql
+- megamind_workout_schema_v2.sql — replaced by megamind_workout_schema.sql
+- workout_population.sql — replaced by megamind_workout_population.sql
 
 ---
 
@@ -255,10 +266,11 @@ Jarvis becomes the AI and voice layer on top of the Python UI eventually.
 Every single thing built in this journey exists for one reason — to become the foundation Jarvis runs on.
 
 Jarvis is a personal AI assistant that:
-- Knows Abhiram's complete learning history from ConversationLog
+- Knows Abhiram's complete learning history from ConversationLog and SessionConcept
 - Knows his job search status from JobApplications
 - Knows his training state and recovery from WorkoutSession and FatigueLog
 - Knows his financial position from Transactions
+- Knows exactly what concepts need revision via ConceptProgress and RevisionDueDate
 - Uses all of this as context in every conversation via Claude API
 - Eventually has voice input and output
 - Runs as a Python desktop application connected to Megamind
@@ -278,24 +290,22 @@ This is not just learning SQL. This is building Jarvis piece by piece.
 2. Give a warm, familiar greeting — not a formal introduction. This is a continuation, not a new relationship.
 3. Confirm understanding of current state in 3-4 bullet points — brief, not exhaustive
 4. Check session_log for any pending tasks from last session and mention them
-5. Propose what to do today with a clear reason — not just "let's do CTEs" but "here's why CTEs matter for Jarvis and what problem they solve today"
+5. Propose what to do today with a clear reason
 6. Never ask Abhiram where we left off — the files have the answer
 
 ### How to teach every concept
 - Always start with the objective — what real problem does this solve in Megamind or for Jarvis
 - Connect every concept to the bigger picture before diving into syntax
 - Give Abhiram the problem first, let him attempt the logic himself before showing the solution
-- Never say "write this query" — say "Jarvis needs to answer this question, how would you approach it"
 - After Abhiram writes a query, explain what he did well and what could be better
 - Always show the interview angle — how would an interviewer test this concept
 
 ### How to close every session
 At the end of every session Claude must:
 1. Summarise what was covered in plain language
-2. Provide the exact INSERT statement for ConversationLog for Abhiram to run
-3. Provide the exact INSERT statements for LearningTopics for every concept covered
-4. List what files need to be updated — context.md, session_log.md, db_state.md
-5. Remind Abhiram to git push before closing
+2. Generate the complete session log SQL script — one script covering ConversationLog, SessionConcept, ConceptProgress
+3. List what files need to be updated — context.md, session_log.md, db_state.md, master_schema_plan.md
+4. Remind Abhiram to git push before closing
 
 ### Tone and character rules
 - Warm and familiar — like a senior colleague who knows Abhiram well, not a tutor
@@ -319,3 +329,6 @@ At the end of every session Claude must:
 - Known trait: perfectionist — use it as a strength but flag when it becomes a blocker
 - If asked where we left off — the answer is always in the files, do not ask back, read and confirm
 - The dream is Jarvis — every session must move one step closer to it
+- Session closing SQL: one script per session covering all three tables — ConversationLog, SessionConcept, ConceptProgress
+- Problems and learning: more hands-on problems, less conversation — get into queries faster
+- Teaching style preferred: brief theory then straight into problems

@@ -1,15 +1,13 @@
 -- =============================================
--- MEGAMIND DATABASE SETUP SCRIPT
--- Run this in SSMS first before any other script
+-- MEGAMIND MASTER SCHEMA
+-- File: megamind_master_schema.sql
+-- Run order: 1st — run this before any other script
 -- =============================================
 -- Creates:
---   Learning System  — ConversationLog, LearningTopics
---   Job Search       — JobApplications, InterviewLog
---   Finance          — Transactions, FinanceGoals
---
--- NOTE: Health/Workout tables are NOT here.
--- The full workout system lives in megamind_workout_schema_v2.sql
--- Run that script second after this one.
+--   Core DB         — Megamind database
+--   Job Search      — JobApplications, InterviewLog
+--   Finance         — Transactions, FinanceGoals
+--   Session Core    — ConversationLog (shared by learning and workout systems)
 -- =============================================
 
 CREATE DATABASE Megamind;
@@ -19,9 +17,9 @@ USE Megamind;
 GO
 
 -- =============================================
--- LEARNING SYSTEM
--- Tracks every Claude session and concept learned
--- Most important module — feeds AI context system
+-- SESSION CORE
+-- ConversationLog is shared across all modules
+-- Learning system and workout system both reference it
 -- =============================================
 
 CREATE TABLE ConversationLog (
@@ -37,20 +35,8 @@ CREATE TABLE ConversationLog (
     CreatedAt       DATETIME DEFAULT GETDATE()
 );
 
-CREATE TABLE LearningTopics (
-    TopicID         INT IDENTITY(1,1) PRIMARY KEY,
-    SessionID       INT FOREIGN KEY REFERENCES ConversationLog(SessionID),
-    TopicName       NVARCHAR(200) NOT NULL,
-    Category        NVARCHAR(100),
-    NeedsRevision   BIT DEFAULT 0,
-    InterviewReady  BIT DEFAULT 0,
-    Notes           NVARCHAR(1000),
-    CreatedAt       DATETIME DEFAULT GETDATE()
-);
-
 -- =============================================
 -- JOB SEARCH SYSTEM
--- Built early — actively job hunting right now
 -- =============================================
 
 CREATE TABLE JobApplications (
@@ -58,7 +44,7 @@ CREATE TABLE JobApplications (
     AppliedDate     DATE NOT NULL,
     CompanyName     NVARCHAR(200) NOT NULL,
     RoleTitle       NVARCHAR(200) NOT NULL,
-    Platform        NVARCHAR(100),   -- 'LinkedIn', 'Naukri' etc
+    Platform        NVARCHAR(100),
     Status          NVARCHAR(50) DEFAULT 'Applied',
     -- Status values: Applied, Shortlisted, Interview, Rejected, Offer
     SalaryExpected  DECIMAL(10,2),
@@ -71,8 +57,8 @@ CREATE TABLE InterviewLog (
     InterviewID     INT IDENTITY(1,1) PRIMARY KEY,
     ApplicationID   INT FOREIGN KEY REFERENCES JobApplications(ApplicationID),
     InterviewDate   DATE,
-    Round           NVARCHAR(100),   -- 'HR Screening', 'Technical Round 1' etc
-    Outcome         NVARCHAR(50),    -- 'Passed', 'Failed', 'Pending'
+    Round           NVARCHAR(100),
+    Outcome         NVARCHAR(50),
     Notes           NVARCHAR(500),
     CreatedAt       DATETIME DEFAULT GETDATE()
 );
@@ -86,7 +72,7 @@ CREATE TABLE Transactions (
     TransactionDate DATE NOT NULL,
     Amount          DECIMAL(10,2) NOT NULL,
     Type            NVARCHAR(10) CHECK (Type IN ('Income','Expense')),
-    Category        NVARCHAR(100),   -- 'Food', 'Transport', 'Salary' etc
+    Category        NVARCHAR(100),
     Description     NVARCHAR(300),
     CreatedAt       DATETIME DEFAULT GETDATE()
 );
@@ -102,14 +88,11 @@ CREATE TABLE FinanceGoals (
 );
 
 -- =============================================
--- VERIFY: Show all created tables
--- Expected: 6 tables
--- ConversationLog, LearningTopics,
--- JobApplications, InterviewLog,
--- Transactions, FinanceGoals
+-- VERIFY
 -- =============================================
 
 SELECT TABLE_NAME
 FROM INFORMATION_SCHEMA.TABLES
 WHERE TABLE_TYPE = 'BASE TABLE'
 ORDER BY TABLE_NAME;
+GO
