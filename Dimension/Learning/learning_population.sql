@@ -1,6 +1,6 @@
 -- =============================================
 -- MEGAMIND LEARNING POPULATION
--- File: megamind_learning_population.sql
+-- File: learning_population.sql
 -- Run order: 5th — run after megamind_workout_population.sql
 -- Created: Session 004 — 17 March 2026
 -- =============================================
@@ -781,6 +781,7 @@ GO
 INSERT INTO ConceptProgress (ConceptID, Status, TimesPracticed)
 SELECT ConceptID, 'Not Started', 0
 FROM Concept;
+
 
 GO
 

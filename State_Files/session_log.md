@@ -36,10 +36,6 @@
 - ExerciseBodyRegion table not populated
 - DayExercise table not populated
 
-### What Changed Mid-Session
-- Original workout schema had Q1 Neural and Q2 Tendon — reversed after Abhiram corrected the order
-- Simple WorkoutLog/ExerciseLog tables in megamind_setup.sql were placeholders — replaced by full workout system in v2
-
 ### Mood / State
 High energy session. Very engaged. Good foundation built.
 Watch for: overambition — a lot was designed, execution needs to follow.
@@ -54,27 +50,15 @@ Watch for: overambition — a lot was designed, execution needs to follow.
 ### What Was Done
 - Identified context continuity problem — new chats felt like strangers, not continuation
 - Designed 3-file context system: context.md, session_log.md, db_state.md
-- Fixed megamind_setup.sql — removed duplicate placeholder health tables
-- Ran megamind_setup.sql in SSMS — Megamind database created successfully
-- Ran megamind_workout_schema_v2.sql in SSMS — all workout tables and reference data created
+- Ran megamind_setup.sql — Megamind database created successfully
+- Ran megamind_workout_schema_v2.sql — all workout tables and reference data created
 - Verified 22 tables total in Megamind database
-- Added SessionTitle column to ConversationLog using ALTER TABLE
-- Recreated ConversationLog and LearningTopics with correct column order
 - Inserted Session 001 and Session 002 rows into ConversationLog
-- Inserted 11 LearningTopics rows across both sessions
-- Ran first real JOIN query against Megamind — LearningTopics joined to ConversationLog
-- Discussed Claude API and how it enables Jarvis
+- Ran first real JOIN query against Megamind
 
 ### Decisions Made
 - session_log.md and db_state.md added as mandatory context files
-- megamind_setup.sql updated to reflect correct schema
 - Multiple log entries per day are allowed — SessionNumber is independent of SessionDate
-
-### What Was NOT Done
-- ExerciseBodyRegion table still empty
-- DayExercise table still empty
-- SQL learning (CTEs, Window Functions) not started yet
-- GitHub push not done yet
 
 ### Mood / State
 Steady and methodical. Less hyperactive than Session 001 — good sign.
@@ -87,27 +71,17 @@ Steady and methodical. Less hyperactive than Session 001 — good sign.
 **SessionTitle:** Workout Database Population and First Real Queries
 
 ### What Was Done
-- Deep dive into Megamind workout table architecture — clarified every table's purpose at column level
-- Established correct classification — Fact vs Dimension vs Bridge/Config tables
-- Generated and ran workout_population.sql — populated ExerciseBodyRegion (264 rows) and DayExercise (86 rows) for Q1 and Q2
-- Full workout logging chain is now unblocked
-- Wrote first real 5-table INNER JOIN against Megamind — exercises and body regions for Q1 Day 1
-- Learned STRING_AGG — collapsed multi-row region results into one row per exercise
-- Debugged duplicate aggregation — root cause was join fan-out before GROUP BY
-- Learned WHERE vs HAVING distinction
+- Generated and ran workout_population.sql — ExerciseBodyRegion (264 rows) and DayExercise (86 rows) for Q1 and Q2
+- Wrote first real 5-table INNER JOIN against Megamind
+- Learned STRING_AGG, WHERE vs HAVING, debugged join fan-out problem
 - Created usp_GetWorkoutPrescription stored procedure
-- Logged Session 003 into ConversationLog and LearningTopics
 
 ### Decisions Made
 - workout_population.sql added as third script in run order
 - Priority for next sessions — CTEs and Window Functions
 
-### What Was NOT Done
-- CTEs and Window Functions — still not started, pushed again
-- First real workout not yet logged
-
 ### Mood / State
-Solid session. Abhiram wrote queries himself and debugged independently — good direction.
+Solid session. Abhiram wrote queries himself and debugged independently.
 Watch for: CTEs keep getting pushed.
 
 ---
@@ -118,65 +92,125 @@ Watch for: CTEs keep getting pushed.
 **SessionTitle:** CTEs, Window Functions and Learning Schema Design
 
 ### What Was Done
-
-**SQL Learning:**
-- CTEs completed — Basic syntax, CTE vs subquery, filtering on aggregated aliases, stacked CTEs, CTE referencing CTE, CTE combined with Window Functions
-- Window Functions completed — OVER clause, PARTITION BY, ROW_NUMBER, RANK, DENSE_RANK (conceptual), LAG and LEAD
+- CTEs completed — all 7 concepts across basic syntax through recursive CTEs
+- Window Functions completed — OVER, PARTITION BY, ROW_NUMBER, RANK, DENSE_RANK, LAG, LEAD
 - 7 hands-on problems written independently against workout tables
-- All queries debugged and verified against real Megamind data
-
-**Learning System Design:**
-- Identified that context.md was doing the job the database should be doing
 - Designed full new Learning System schema — 8 tables replacing LearningTopics
-- Dimension tables: Topic, SubTopic, Concept, ConceptPrerequisite, ProblemBank
-- Tracking tables: ConceptProgress, PracticeLog, SessionConcept
-- Key design decisions: Difficulty (Basic/Intermediate/Advanced), LearningType (Theory/Practice/Experience), InterviewImportance (1-5), RevisionDueDate for spaced repetition
-
-**Script Reorganization:**
-- All SQL scripts reorganized into 5 clean files with clear separation of schema vs population
-- Old files retired: megamind_setup.sql, megamind_workout_schema_v2.sql, workout_population.sql
-- New files: megamind_master_schema.sql, megamind_learning_schema.sql, megamind_workout_schema.sql, megamind_workout_population.sql, megamind_learning_population.sql
-- Run order clearly defined 1 through 5
-
-**Learning Population:**
-- Generated complete megamind_learning_population.sql — 3 Topics, 16 SubTopics, 121 Concepts
-- 45 prerequisite mappings across all subtopics
+- Reorganized all scripts into 5 clean files with clear run order
+- Generated megamind_learning_population.sql — 3 Topics, 16 SubTopics, 121 Concepts, 45 prerequisites
 - ConceptProgress initialized for all 121 concepts at Not Started
-- All scripts run and verified — counts confirmed correct
-
-**Session Logging:**
-- Established pattern: one SQL script per session covering ConversationLog + SessionConcept + ConceptProgress
-- Session 004 logged — 11 concepts updated to In Progress, RevisionDueDate 2026-03-20
 
 ### Decisions Made
-- LearningTopics retired — replaced by new normalized learning system
-- One session log script per session — no more separate ConversationLog and LearningTopics inserts
-- Teaching style preference confirmed: brief theory then straight into problems, minimal conversation
+- LearningTopics retired — replaced by normalized learning system
+- One session log script per session covering all three tables
 - ProblemBank population deferred — separate session needed
-- master_schema_plan.md needs updating to reflect new learning system design
-
-### What Was NOT Done
-- SUM OVER running totals — next session
-- Recursive CTEs — next session
-- ProblemBank not yet populated
-- First real workout session not yet logged
-- master_schema_plan.md not yet updated
+- Teaching style: brief theory then straight into problems
 
 ### What Changed
-- Megamind table count went from 22 to 30
-- LearningTopics dropped, 8 new learning system tables created
-- 121 concepts seeded across 16 subtopics
-- All 5 reorganized scripts generated and ready to push
-- ConversationLog now has 4 rows
-
-### Next Session Must Start With
-1. Git push — all 5 new scripts + updated context.md, db_state.md, session_log.md
-2. Delete old files from repo — megamind_setup.sql, megamind_workout_schema_v2.sql, workout_population.sql
-3. Update master_schema_plan.md to reflect new learning system
-4. Begin SUM OVER running totals and Recursive CTEs
-5. More problems, less talking — confirmed preference
+- Megamind table count: 22 → 30
+- 5 reorganized scripts generated and ready
 
 ### Mood / State
-Strong session. Good learning pace — brief theory, straight into problems. Abhiram wrote all queries independently.
-Design work was thorough — learning system is now properly normalized.
-Watch for: ProblemBank keeps getting deferred. Set a session for it soon or it stays empty forever.
+Strong session. Good learning pace. Abhiram wrote all queries independently.
+Watch for: ProblemBank keeps getting deferred.
+
+---
+
+## Session 005 — 17 March 2026
+
+**Phase:** Phase 2 Week 1 — SUM OVER, QuestionBank System, Script Cleanup
+**SessionTitle:** SUM OVER Running Totals, QuestionBank Workflow and Script Reorganization
+
+### What Was Done
+
+**SQL Learning — ConceptID 29 (SUM OVER and AVG OVER):**
+- SUM OVER basic running total — practiced and correct
+- Multiple window functions in same SELECT — practiced and correct
+- PARTITION BY to reset running total per group — practiced and correct
+- AVG OVER running average — practiced and correct
+- Integer division trap discovered independently — CAST to DECIMAL fix learned
+- CTE wrapping window result for CASE comparison — practiced and correct
+- All 5 practice problems solved independently against ConversationLog and Concept
+
+**QuestionBank System Redesign:**
+- ProblemBank renamed to QuestionBank — cleaner naming convention
+- Column names updated: ProblemID → QuestionID, ProblemDescription → QuestionDescription, ProblemType → QuestionType
+- New learning workflow established — generate questions per concept after teaching, not in bulk upfront
+- PracticeLog updated to reference QuestionBank(QuestionID)
+- 5 questions generated and inserted for ConceptID 29
+
+**New Session Learning Flow established:**
+1. Theory — brief
+2. Practice problems — live in chat, increasing difficulty
+3. QuestionBank generation — INSERT script generated after practice, student runs it
+4. Assessment — questions pulled from QuestionBank exactly as stored
+5. PracticeLog script — generated after assessment, student runs it
+6. Move to next concept
+
+**Script Reorganization:**
+- Full gap analysis performed — all scripts checked against live DB snapshot
+- megamind_learning_schema.sql fixed — ProblemBank replaced with QuestionBank, PracticeLog column fixed
+- QuestionBank.sql retired — migration script, no longer needed
+- SubTopics_3_4.sql retired — inserted into ProblemBank which no longer exists
+- Clean folder structure established for DEV repo
+
+**Folder Structure — Final:**
+```
+E:\Megamind\DEV
+├───Schema
+│       master_schema.sql
+│       learning_schema.sql
+│       workout_schema.sql
+├───Dimension
+│   ├───Learning
+│   │       learning_population.sql
+│   └───Workout
+│           workout_population.sql
+├───QuestionBank
+│       concept_029_questions.sql
+└───State_Files
+        context.md
+        db_state.md
+        master_schema_plan.md
+        session_log.md
+        QuestionBank_Context.md
+```
+
+**Support Files Generated:**
+- megamind_problembank_generation_context.md → renamed QuestionBank_Context.md
+- megamind_script_gap_analysis.md — documents all script vs DB gaps found
+
+### Decisions Made
+- ProblemBank → QuestionBank everywhere — table, files, references
+- QuestionBank questions generated per concept per session — not in bulk
+- PracticeLog entries recorded only for assessment phase — not practice phase
+- Session learning flow locked in — theory → practice → generate questions → assess → log
+- LearningTopics ghost table to be dropped — `DROP TABLE LearningTopics`
+- File naming convention — drop megamind_ prefix, use clean short names
+
+### What Changed
+- QuestionBank created — 5 rows for ConceptID 29
+- PracticeLog.ProblemID → PracticeLog.QuestionID
+- learning_schema.sql regenerated with correct QuestionBank definition
+- ConceptID 29 — Status updated to In Progress
+- DEV folder structure reorganized and cleaned
+
+### What Was NOT Done
+- Assessment for ConceptID 29 — not completed, questions are ready
+- ROWS BETWEEN frame clause (ConceptID 30) — not started
+- Recursive CTEs (ConceptID 23) — not started
+- ConversationLog Session 005 entry — pending session log SQL script
+- LearningTopics DROP — pending manual run in SSMS
+- ConceptPrerequisite discrepancy — 45 in script vs 46 in live DB — not investigated
+
+### Next Session Must Start With
+1. Run `DROP TABLE LearningTopics` in SSMS
+2. Investigate ConceptPrerequisite count — 45 vs 46
+3. Complete ConceptID 29 assessment — 5 questions already in QuestionBank
+4. Continue with ConceptID 30 — ROWS BETWEEN frame clause
+5. Then ConceptID 23 — Recursive CTEs
+
+### Mood / State
+Long session — lots of system work alongside learning. Good foundation locked in.
+QuestionBank workflow is now clean and repeatable.
+Watch for: ConceptID 29 assessment still pending — do not skip it next session.

@@ -1,4 +1,5 @@
 # Megamind Database — Master Schema Plan
+> Last updated: Session 005 — 17 March 2026
 
 ## Overview
 
@@ -41,22 +42,24 @@ Learning   Workout    Finance     Job
 
 ---
 
-## Script Run Order
+## Script Run Order (fresh setup)
 
 | Order | File | Purpose |
 |-------|------|---------|
-| 1 | megamind_master_schema.sql | Core DB + ConversationLog, Job, Finance tables |
-| 2 | megamind_learning_schema.sql | Learning system — drops LearningTopics, creates 8 new tables |
-| 3 | megamind_workout_schema.sql | All workout table definitions |
-| 4 | megamind_workout_population.sql | Workout dimension and program data |
-| 5 | megamind_learning_population.sql | Learning dimension data — topics, subtopics, concepts |
-| Per session | session_XXX_log.sql | ConversationLog + SessionConcept + ConceptProgress |
+| 1 | Schema/master_schema.sql | Core DB + ConversationLog, Job, Finance tables |
+| 2 | Schema/learning_schema.sql | Learning system — all 8 tables including QuestionBank |
+| 3 | Schema/workout_schema.sql | All workout table definitions |
+| 4 | Dimension/Workout/workout_population.sql | Workout dimension and program data |
+| 5 | Dimension/Learning/learning_population.sql | Learning dimension data |
+| Per session | SessionLogs/session_XXX_log.sql | ConversationLog + SessionConcept + ConceptProgress |
+| Per concept | QuestionBank/concept_XXX_questions.sql | QuestionBank inserts after each concept taught |
+| Per assessment | SessionLogs/session_XXX_practicelog.sql | PracticeLog inserts after each assessment |
 
 ---
 
 ## Module 1 — Learning System
 
-Fully redesigned in Session 004. Replaces the old flat LearningTopics table with a properly normalized system.
+Designed Session 004. QuestionBank naming finalized Session 005.
 Goal: reduce dependency on context.md — all learning progress queryable directly from Megamind.
 
 ### Table Architecture
@@ -67,13 +70,12 @@ Topic
         └── Concept ──── ConceptPrerequisite (self-referencing bridge)
               |
               ├── ConceptProgress  (one row per concept, current state)
-              └── ProblemBank      (practice problems and interview questions)
+              └── QuestionBank     (questions generated per concept per session)
                         |
-                        └── PracticeLog (attempts against problems)
+                        └── PracticeLog (assessment attempts — one row per question attempt)
 
 ConversationLog
   └── SessionConcept (bridge — what was covered in each session)
-        └── PracticeLog (also references SessionID)
 ```
 
 ### ConversationLog
@@ -93,20 +95,16 @@ Core session tracking. Shared by learning and workout systems.
 | CreatedAt | DATETIME | Default GETDATE() |
 
 ### Topic
-Top level subject area.
-
 | Column | Type | Notes |
 |--------|------|-------|
 | TopicID | INT IDENTITY PK | |
 | TopicName | NVARCHAR(100) | e.g. SQL, Python, Tools |
 | Category | NVARCHAR(50) | Technical, Domain, Tools |
-| Description | NVARCHAR(300) | One line about the topic |
+| Description | NVARCHAR(300) | |
 | IsActive | BIT | 1 = currently studying |
 | CreatedAt | DATETIME | |
 
 ### SubTopic
-Grouping layer between Topic and Concept.
-
 | Column | Type | Notes |
 |--------|------|-------|
 | SubTopicID | INT IDENTITY PK | |
@@ -116,8 +114,6 @@ Grouping layer between Topic and Concept.
 | CreatedAt | DATETIME | |
 
 ### Concept
-Individual learnable unit — the core of the system.
-
 | Column | Type | Notes |
 |--------|------|-------|
 | ConceptID | INT IDENTITY PK | |
@@ -127,33 +123,32 @@ Individual learnable unit — the core of the system.
 | LearningType | NVARCHAR(20) | Theory / Practice / Experience |
 | InterviewImportance | TINYINT | 1-5 |
 | EstimatedSessions | INT | Sessions to reach Interview Ready |
-| Notes | NVARCHAR(1000) | Key context about this concept |
+| Notes | NVARCHAR(1000) | |
 | CreatedAt | DATETIME | |
 
 ### ConceptPrerequisite
-Self-referencing bridge — one concept can have multiple prerequisites.
-
 | Column | Type | Notes |
 |--------|------|-------|
 | ConceptID | INT FK PK | References Concept |
 | PrerequisiteConceptID | INT FK PK | References Concept |
 
-### ProblemBank
-All practice problems and interview questions in one place.
+### QuestionBank
+Questions generated per concept after each teaching session.
+Generation rules documented in State_Files/QuestionBank_Context.md.
 
 | Column | Type | Notes |
 |--------|------|-------|
-| ProblemID | INT IDENTITY PK | |
+| QuestionID | INT IDENTITY PK | |
 | ConceptID | INT FK | References Concept |
-| ProblemDescription | NVARCHAR(2000) | The problem |
+| QuestionDescription | NVARCHAR(2000) | Full question with output columns and hint |
 | Difficulty | NVARCHAR(20) | Basic / Intermediate / Advanced |
-| ProblemType | NVARCHAR(20) | Practice / Interview |
-| ExpectedOutput | NVARCHAR(1000) | What a good answer looks like |
-| Notes | NVARCHAR(500) | |
-| CreatedAt | DATETIME | |
+| QuestionType | NVARCHAR(20) | Practice / Interview |
+| ExpectedOutput | NVARCHAR(1000) | Result shape and row count |
+| Notes | NVARCHAR(500) | Teaching note and interview context |
+| CreatedAt | DATETIME | Default GETDATE() |
 
 ### ConceptProgress
-One row per concept — current learning state. Auto-updated each session.
+One row per concept — current learning state.
 
 | Column | Type | Notes |
 |--------|------|-------|
@@ -162,25 +157,25 @@ One row per concept — current learning state. Auto-updated each session.
 | Status | NVARCHAR(30) | Not Started / In Progress / Needs Revision / Interview Ready |
 | TimesPracticed | INT | Increments each session |
 | LastPracticed | DATE | |
-| RevisionDueDate | DATE | Spaced repetition — when to revise |
+| RevisionDueDate | DATE | Spaced repetition |
 | CreatedAt | DATETIME | |
 | UpdatedAt | DATETIME | |
 
 ### PracticeLog
-Every individual problem attempt — tied to problem and session.
+Every individual assessment attempt — tied to question and session.
 
 | Column | Type | Notes |
 |--------|------|-------|
 | PracticeID | INT IDENTITY PK | |
-| ProblemID | INT FK | References ProblemBank |
+| QuestionID | INT FK | References QuestionBank |
 | SessionID | INT FK | References ConversationLog |
 | SolvedIndependently | BIT | 1 = no hints needed |
 | TimeTakenMins | INT | |
-| Notes | NVARCHAR(500) | |
+| Notes | NVARCHAR(1000) | |
 | CreatedAt | DATETIME | |
 
 ### SessionConcept
-Bridge between sessions and concepts — full history of what was covered when.
+Bridge between sessions and concepts — full coverage history.
 
 | Column | Type | Notes |
 |--------|------|-------|
@@ -188,17 +183,17 @@ Bridge between sessions and concepts — full history of what was covered when.
 | SessionID | INT FK | References ConversationLog |
 | ConceptID | INT FK | References Concept |
 | DepthReached | TINYINT | 1 = surface, 5 = deep |
-| InterviewReadinessAfter | TINYINT | 1-5 readiness score after this session |
-| Notes | NVARCHAR(500) | |
+| InterviewReadinessAfter | TINYINT | 1-5 readiness score |
+| Notes | NVARCHAR(1000) | |
 | CreatedAt | DATETIME | |
 
 ### Current Learning Data
 - 3 Topics (SQL active, Python and Tools future scope)
 - 16 SubTopics under SQL
 - 121 Concepts — complete SQL Developer syllabus
-- 45 prerequisite mappings
-- 121 ConceptProgress rows initialized at Not Started
-- 11 concepts updated to In Progress after Session 004
+- 46 prerequisite mappings (1 discrepancy vs script — investigate)
+- 121 ConceptProgress rows — ConceptID 29 In Progress, rest Not Started
+- 5 QuestionBank rows — ConceptID 29
 
 ---
 
@@ -233,7 +228,8 @@ Bridge between sessions and concepts — full history of what was covered when.
 
 ## Module 3 — Workout System
 
-Full schema in megamind_workout_schema.sql. Population in megamind_workout_population.sql.
+Full schema in Schema/workout_schema.sql.
+Population in Dimension/Workout/workout_population.sql.
 
 ### The Year Plan — Correct Order
 ```
@@ -243,7 +239,7 @@ Q3 — Type 2x + Neural Mix
 Q4 — Hypertrophy
 ```
 
-### Reference Tables
+### Reference Tables (all populated)
 | Table | Rows | Purpose |
 |-------|------|---------|
 | BodyRegion | 26 | Body regions with recovery hours |
@@ -252,7 +248,7 @@ Q4 — Hypertrophy
 | MeasurementType | 2 | Reps, Time |
 | ProgressionRule | 7 | All progression types including Speed Must Maintain |
 
-### Program Structure Tables
+### Program Structure Tables (all populated)
 | Table | Rows | Purpose |
 |-------|------|---------|
 | Quarter | 4 | Q1-Q4 with cycle length and focus |
@@ -278,7 +274,7 @@ Q4 — Hypertrophy
 | TransactionDate | DATE NOT NULL | |
 | Amount | DECIMAL(10,2) NOT NULL | |
 | Type | NVARCHAR(10) | Income / Expense |
-| Category | NVARCHAR(100) | Food, Transport, Salary etc |
+| Category | NVARCHAR(100) | |
 | Description | NVARCHAR(300) | |
 | CreatedAt | DATETIME | |
 
@@ -297,11 +293,10 @@ Q4 — Hypertrophy
 
 ## Future — Jarvis Layer
 
-When Jarvis is built it will sit above the Python UI as an AI and voice interface.
-It will read from all modules:
-
+Jarvis will read from all modules:
 - ConversationLog + SessionConcept — learning progress and history
 - ConceptProgress — what needs revision today (RevisionDueDate)
+- QuestionBank + PracticeLog — assessment history and weak areas
 - JobApplications and InterviewLog — job search status
 - WorkoutSession and FatigueLog — training state and recovery
 - Transactions and FinanceGoals — financial awareness

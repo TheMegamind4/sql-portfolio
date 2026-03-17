@@ -1,6 +1,6 @@
 -- =============================================
 -- MEGAMIND WORKOUT POPULATION
--- File: megamind_workout_population.sql
+-- File: workout_population.sql
 -- Run order: 4th — run after megamind_workout_schema.sql
 -- =============================================
 -- Populates:
