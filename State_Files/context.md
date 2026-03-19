@@ -13,7 +13,7 @@
 - **Experience:** 3 years (Aug 2022 – Present)
 - **Education:** B.Tech Mechanical Engineering, College of Engineering Trivandrum, CGPA 7.09
 - **GitHub:** TheMegamind4
-- **DEV Repo:** E:\Megamind\DEV
+- **DEV Repo:** E:\Projects\Megamind\DEV
 
 ---
 
@@ -78,7 +78,7 @@ No generic dummy exercises. Every query has a real purpose.
 - Multi-table JOINs ✅ Done Session 003
 - CTEs — all 7 concepts ✅ Done Session 004
 - Window Functions — OVER, PARTITION BY, ROW_NUMBER, RANK, DENSE_RANK, LAG, LEAD ✅ Done Session 004
-- SUM OVER and AVG OVER running totals ✅ Done Session 005 (assessment pending)
+- SUM OVER and AVG OVER running totals ✅ Done Session 005
 - ROWS BETWEEN frame clause — next
 - Recursive CTEs — next
 
@@ -113,24 +113,26 @@ Learning   Workout    Finance     Job
 ## DEV Folder Structure
 
 ```
-E:\Megamind\DEV
-├───Schema
-│       master_schema.sql
-│       learning_schema.sql
-│       workout_schema.sql
+E:\Projects\Megamind\DEV
 ├───Dimension
 │   ├───Learning
 │   │       learning_population.sql
 │   └───Workout
 │           workout_population.sql
 ├───QuestionBank
-│       concept_029_questions.sql
+│       Concept_29_Assessment.sql
+├───Schema
+│       learning_schema.sql
+│       master_schema.sql
+│       workout_schema.sql
+├───SessionLogs
+│       session_005_log.sql
 └───State_Files
         context.md
         db_state.md
         master_schema_plan.md
-        session_log.md
         QuestionBank_Context.md
+        session_log.md
 ```
 
 **Run order for fresh setup:**
@@ -168,10 +170,10 @@ E:\Megamind\DEV
 - Columns: QuestionID, ConceptID, QuestionDescription, Difficulty, QuestionType, ExpectedOutput, Notes, CreatedAt
 - Questions generated per concept per session — not in bulk
 - Generation rules documented in: State_Files/QuestionBank_Context.md
-- Current population: 5 questions for ConceptID 29
+- Current population: 5 questions for ConceptID 29 (assessment complete — 4/5 logged)
 
-**Problem count rules:**
-| InterviewImportance | Difficulty | Problems |
+**Question count rules:**
+| InterviewImportance | Difficulty | Questions |
 |---------------------|-----------|---------|
 | 5 | Any | 5 |
 | 4 | Advanced | 4 |

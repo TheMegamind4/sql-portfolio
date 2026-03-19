@@ -20,7 +20,7 @@ Status: EXISTS — used for initial learning only, not connected to Megamind
 
 ## Megamind (Main Database)
 Status: **LIVE — updated Session 005**
-Total tables: **30** (excluding LearningTopics ghost table — pending DROP)
+Total tables: **30**
 
 ---
 
@@ -38,22 +38,15 @@ Total tables: **30** (excluding LearningTopics ghost table — pending DROP)
 
 ---
 
-## Pending One-Time DB Cleanup
-```sql
--- Run once on live DB — ghost table from before Session 004
-DROP TABLE LearningTopics;
-```
-
----
-
 ## Master Schema Tables
 
 ### ConversationLog
-**Current data: 4 rows** (Session 005 entry pending session log SQL)
+**Current data: 5 rows**
 - Session 001 — 2026-03-13 — Environment Setup and Megamind Architecture
 - Session 002 — 2026-03-14 — Context System Design and Database Execution
 - Session 003 — 2026-03-15 — Workout Database Population and First Real Queries
 - Session 004 — 2026-03-17 — CTEs, Window Functions and Learning Schema Design
+- Session 005 — 2026-03-17 — SUM OVER Running Totals, QuestionBank Workflow and Script Reorganization
 
 ### JobApplications
 **Current data: 0 rows**
@@ -89,20 +82,22 @@ DROP TABLE LearningTopics;
 
 ### ConceptProgress
 **Current data: 121 rows**
-- ConceptID 29 — updated to In Progress, Session 005
+- 12 In Progress
+- 109 Not Started
 
 ### SessionConcept
-**Current data: 11 rows** — Session 004 concepts
-- Session 005 concepts pending session log SQL
+**Current data: 12 rows**
+- 11 rows from Session 004
+- 1 row from Session 005 — ConceptID 29
 
-### QuestionBank ← renamed from ProblemBank Session 005
-**Current data: 5 rows** — ConceptID 29 questions only
+### QuestionBank
+**Current data: 5 rows** — ConceptID 29 only
 - QuestionIDs 1–5 — SUM OVER and AVG OVER running totals
 
 ### PracticeLog
-**Current data: 0 rows**
-- Column renamed: ProblemID → QuestionID (Session 005)
-- FK updated to reference QuestionBank(QuestionID)
+**Current data: 4 rows** — Session 005 assessment
+- QuestionIDs 1–4 completed and logged
+- QuestionID 5 deferred to ConceptID 30 session
 
 ---
 
@@ -150,11 +145,9 @@ DROP TABLE LearningTopics;
 ---
 
 ## Pending Database Work
-- [ ] DROP TABLE LearningTopics — ghost table, run manually in SSMS
 - [ ] Investigate ConceptPrerequisite count — 45 in script vs 46 in live DB
-- [ ] Complete ConceptID 29 assessment — 5 questions ready in QuestionBank
+- [ ] ConceptID 29 Question 5 — deferred, complete at start of ConceptID 30 session
 - [ ] ConceptID 30 — ROWS BETWEEN frame clause — not started
 - [ ] ConceptID 23 — Recursive CTEs — not started
-- [ ] Log Session 005 into ConversationLog — pending session log SQL script
 - [ ] First real workout session — WorkoutSession, ExerciseEntry, SetEntry
 - [ ] Start inserting JobApplications — actively job hunting
